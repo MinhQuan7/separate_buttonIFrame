@@ -198,7 +198,6 @@ eraWidget.init({
 
     // Request initial data sync after configuration
     console.log("Requesting initial data sync...");
-    eraWidget.requestDataSync();
   },
 
   onValues: (values) => {
@@ -391,12 +390,6 @@ function controlButton(buttonIndex, isOn) {
     updateButtonState(buttonIndex, isOn);
 
     // Request data sync after action to confirm state change
-    setTimeout(() => {
-      if (isConfigured) {
-        console.log("Requesting data sync after action...");
-        eraWidget.requestDataSync();
-      }
-    }, 500); // Wait 500ms then sync
   } else {
     console.warn(`No action config found for index ${actionIndex}`);
     // Still update UI locally even if no server action
@@ -476,14 +469,6 @@ document.addEventListener("DOMContentLoaded", function () {
   console.log(
     "DOM loaded - waiting for E-Ra configuration and data via onValues..."
   );
-
-  // Set up periodic data sync to ensure bi-directional communication
-  setInterval(() => {
-    if (isConfigured) {
-      console.log("Requesting periodic data sync...");
-      eraWidget.requestDataSync();
-    }
-  }, 2000); // Sync every 2 seconds
 
   // Add timeout fallback if no data received after configuration
   setTimeout(() => {
