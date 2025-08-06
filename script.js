@@ -20,32 +20,87 @@ let pendingAction = {
 // Device names for confirm popup (only 1 device now)
 const deviceNames = ["CB Tổng"];
 
-// Settings configuration - stored in localStorage
+// Settings configuration - prioritize URL params, fallback to localStorage
 let deviceSettings = {
   deviceName: "CB Tổng",
   modeLabel: "Mode CB Tổng",
   modeValue: "Auto",
 };
 
-// Load settings from localStorage
+// Get settings from URL parameters
+function getUrlParameters() {
+  const urlParams = new URLSearchParams(window.location.search);
+  return {
+    deviceName: urlParams.get("deviceName"),
+    modeLabel: urlParams.get("modeLabel"),
+    modeValue: urlParams.get("modeValue"),
+    deviceId: urlParams.get("deviceId"), // For unique identification
+  };
+}
+
+// Load settings from URL params first, then localStorage
 function loadSettings() {
+  const urlParams = getUrlParameters();
   const savedSettings = localStorage.getItem("deviceSettings");
-  if (savedSettings) {
+
+  // Priority: URL params > localStorage > defaults
+  if (urlParams.deviceName || urlParams.modeLabel || urlParams.modeValue) {
+    // Use URL parameters (highest priority)
+    deviceSettings = {
+      deviceName: urlParams.deviceName || deviceSettings.deviceName,
+      modeLabel: urlParams.modeLabel || deviceSettings.modeLabel,
+      modeValue: urlParams.modeValue || deviceSettings.modeValue,
+      deviceId: urlParams.deviceId || null,
+    };
+    console.log("Settings loaded from URL parameters:", deviceSettings);
+  } else if (savedSettings) {
+    // Fallback to localStorage
     try {
       deviceSettings = JSON.parse(savedSettings);
-      updateUIWithSettings();
+      console.log("Settings loaded from localStorage:", deviceSettings);
     } catch (e) {
       console.warn("Failed to load settings from localStorage:", e);
     }
   }
+
+  updateUIWithSettings();
 }
 
-// Save settings to localStorage
+// Save settings to both localStorage and E-Ra platform
 function saveSettingsToStorage() {
   try {
+    // Save to localStorage for immediate use
     localStorage.setItem("deviceSettings", JSON.stringify(deviceSettings));
+
+    // Save to E-Ra platform if configured (for cross-device sync)
+    if (isConfigured && deviceSettings.deviceId) {
+      saveSettingsToEra();
+    }
   } catch (e) {
     console.warn("Failed to save settings to localStorage:", e);
+  }
+}
+
+// Save settings to E-Ra platform for cross-device synchronization
+function saveSettingsToEra() {
+  try {
+    const settingsData = {
+      deviceName: deviceSettings.deviceName,
+      modeLabel: deviceSettings.modeLabel,
+      modeValue: deviceSettings.modeValue,
+      timestamp: Date.now(),
+    };
+
+    // Use E-Ra widget to send settings to platform
+    if (eraWidget && typeof eraWidget.publishData === "function") {
+      eraWidget.publishData(
+        `settings_${deviceSettings.deviceId}`,
+        settingsData
+      );
+      console.log("Settings saved to E-Ra platform:", settingsData);
+    }
+  } catch (e) {
+    console.warn("Failed to save settings to E-Ra platform:", e);
   }
 }
 
@@ -99,6 +154,22 @@ function showSettings() {
   if (content) {
     content.style.overflowY = "auto";
     content.scrollTop = 0; // Reset scroll position
+  }
+
+  // Show info about URL parameters if they exist
+  const urlParams = getUrlParameters();
+  if (urlParams.deviceName || urlParams.modeLabel || urlParams.modeValue) {
+    console.log("URL Parameters detected:", urlParams);
+    // Add visual indicator that URL params are active
+    const settingsTitle = document.querySelector(".settings-title");
+    if (settingsTitle && !settingsTitle.querySelector(".url-indicator")) {
+      const indicator = document.createElement("span");
+      indicator.className = "url-indicator";
+      indicator.style.cssText =
+        "color: #10b981; font-size: 10px; margin-left: 8px;";
+      indicator.textContent = "(URL)";
+      settingsTitle.appendChild(indicator);
+    }
   }
 
   // Focus first input
@@ -202,6 +273,24 @@ eraWidget.init({
 
   onValues: (values) => {
     console.log("E-Ra values received:", values);
+
+    // Check for settings data from E-Ra platform
+    if (
+      deviceSettings.deviceId &&
+      values[`settings_${deviceSettings.deviceId}`]
+    ) {
+      const serverSettings =
+        values[`settings_${deviceSettings.deviceId}`].value;
+      if (serverSettings && typeof serverSettings === "object") {
+        // Update device settings from server
+        deviceSettings = {
+          ...deviceSettings,
+          ...serverSettings,
+        };
+        updateUIWithSettings();
+        console.log("Settings updated from E-Ra platform:", deviceSettings);
+      }
+    }
 
     // Update button states based on received values
     if (values && typeof values === "object") {
@@ -453,6 +542,25 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 });
+
+// Debug function to show current configuration
+function debugConfiguration() {
+  const urlParams = getUrlParameters();
+  const config = {
+    currentSettings: deviceSettings,
+    urlParameters: urlParams,
+    localStorage: JSON.parse(localStorage.getItem("deviceSettings") || "null"),
+    eraConfigured: isConfigured,
+    dataLoaded: initialDataLoaded,
+  };
+  console.log("=== DEVICE CONFIGURATION DEBUG ===");
+  console.table(config);
+  console.log("Priority: URL params > E-Ra platform > localStorage > defaults");
+  return config;
+}
+
+// Make debug function available globally
+window.debugConfiguration = debugConfiguration;
 
 // Initialize all buttons with loading state, wait for E-Ra data via onValues
 document.addEventListener("DOMContentLoaded", function () {
