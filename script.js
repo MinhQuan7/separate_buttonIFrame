@@ -26,9 +26,35 @@ function getURLParameter(name) {
   return urlParams.get(name);
 }
 
-// Load device name from URL parameter
-function loadDeviceNameFromURL() {
-  const deviceName = getURLParameter("name");
+// Debug function to show current URL parameters
+function debugURLParameters() {
+  const params = new URLSearchParams(window.location.search);
+  console.log("=== URL Parameters Debug ===");
+  console.log("Full URL:", window.location.href);
+  console.log("Search params:", window.location.search);
+
+  for (const [key, value] of params) {
+    console.log(`${key}: ${decodeURIComponent(value)}`);
+  }
+
+  console.log("============================");
+}
+
+// Load device configuration from URL parameters
+function loadDeviceConfigFromURL() {
+  const deviceName = getURLParameter("deviceName") || getURLParameter("name"); // Support both old and new format
+  const modeLabel = getURLParameter("modeLabel");
+  const modeValue = getURLParameter("modeValue");
+  const deviceId = getURLParameter("deviceId");
+
+  console.log("URL Parameters:", {
+    deviceName,
+    modeLabel,
+    modeValue,
+    deviceId,
+  });
+
+  // Update device name
   if (deviceName) {
     deviceNames[0] = decodeURIComponent(deviceName);
     console.log(`Device name loaded from URL: ${deviceNames[0]}`);
@@ -38,12 +64,40 @@ function loadDeviceNameFromURL() {
     if (deviceLabel) {
       deviceLabel.textContent = deviceNames[0];
     }
+  }
 
-    // Update mode label as well
-    const modeLabel = document.querySelector(".mode-label");
-    if (modeLabel) {
-      modeLabel.textContent = `Mode ${deviceNames[0]}`;
+  // Update mode label
+  if (modeLabel) {
+    const modeLabelElement = document.querySelector(".mode-label");
+    if (modeLabelElement) {
+      modeLabelElement.textContent = decodeURIComponent(modeLabel);
+      console.log(
+        `Mode label loaded from URL: ${decodeURIComponent(modeLabel)}`
+      );
     }
+  } else if (deviceName) {
+    // Fallback to old format if modeLabel not provided
+    const modeLabelElement = document.querySelector(".mode-label");
+    if (modeLabelElement) {
+      modeLabelElement.textContent = `Mode ${deviceNames[0]}`;
+    }
+  }
+
+  // Update mode value
+  if (modeValue) {
+    const modeDisplay = document.querySelector(".mode-display");
+    if (modeDisplay) {
+      modeDisplay.textContent = decodeURIComponent(modeValue);
+      console.log(
+        `Mode value loaded from URL: ${decodeURIComponent(modeValue)}`
+      );
+    }
+  }
+
+  // Store device ID for future use (if needed for E-Ra integration)
+  if (deviceId) {
+    window.currentDeviceId = decodeURIComponent(deviceId);
+    console.log(`Device ID loaded from URL: ${window.currentDeviceId}`);
   }
 }
 
@@ -329,8 +383,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
 // Initialize all buttons with loading state, wait for E-Ra data via onValues
 document.addEventListener("DOMContentLoaded", function () {
-  // Load device name from URL parameter first
-  loadDeviceNameFromURL();
+  // Debug URL parameters
+  debugURLParameters();
+
+  // Load device configuration from URL parameters first
+  loadDeviceConfigFromURL();
 
   // Show loading state initially
   // Show as no-connection until configured and data received
