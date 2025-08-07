@@ -18,7 +18,7 @@ let pendingAction = {
 };
 
 // Device names for confirm popup (only 1 device now)
-let deviceNames = ["CB Tổng"];
+const deviceNames = ["CB Tổng"];
 
 // Settings configuration - prioritize URL params, fallback to localStorage
 let deviceSettings = {
@@ -38,48 +38,17 @@ function getUrlParameters() {
   };
 }
 
-// URL parameter processing (backward compatibility)
-function getURLParameter(name) {
-  const urlParams = new URLSearchParams(window.location.search);
-  return urlParams.get(name);
-}
-
-// Debug function to show current URL parameters
-function debugURLParameters() {
-  const params = new URLSearchParams(window.location.search);
-  console.log("=== URL Parameters Debug ===");
-  console.log("Full URL:", window.location.href);
-  console.log("Search params:", window.location.search);
-
-  for (const [key, value] of params) {
-    console.log(`${key}: ${decodeURIComponent(value)}`);
-  }
-
-  console.log("============================");
-}
-
 // Load settings from URL params first, then localStorage
 function loadSettings() {
   const urlParams = getUrlParameters();
   const savedSettings = localStorage.getItem("deviceSettings");
 
-  // Support backward compatibility with 'name' parameter
-  const legacyName = getURLParameter("name");
-
   // Priority: URL params > localStorage > defaults
-  if (
-    urlParams.deviceName ||
-    urlParams.modeLabel ||
-    urlParams.modeValue ||
-    legacyName
-  ) {
+  if (urlParams.deviceName || urlParams.modeLabel || urlParams.modeValue) {
     // Use URL parameters (highest priority)
     deviceSettings = {
-      deviceName:
-        urlParams.deviceName || legacyName || deviceSettings.deviceName,
-      modeLabel:
-        urlParams.modeLabel ||
-        (legacyName ? `Mode ${legacyName}` : deviceSettings.modeLabel),
+      deviceName: urlParams.deviceName || deviceSettings.deviceName,
+      modeLabel: urlParams.modeLabel || deviceSettings.modeLabel,
       modeValue: urlParams.modeValue || deviceSettings.modeValue,
       deviceId: urlParams.deviceId || null,
     };
@@ -95,6 +64,44 @@ function loadSettings() {
   }
 
   updateUIWithSettings();
+}
+
+// Save settings to both localStorage and E-Ra platform
+function saveSettingsToStorage() {
+  try {
+    // Save to localStorage for immediate use
+    localStorage.setItem("deviceSettings", JSON.stringify(deviceSettings));
+
+    // Save to E-Ra platform if configured (for cross-device sync)
+    if (isConfigured && deviceSettings.deviceId) {
+      saveSettingsToEra();
+    }
+  } catch (e) {
+    console.warn("Failed to save settings to localStorage:", e);
+  }
+}
+
+// Save settings to E-Ra platform for cross-device synchronization
+function saveSettingsToEra() {
+  try {
+    const settingsData = {
+      deviceName: deviceSettings.deviceName,
+      modeLabel: deviceSettings.modeLabel,
+      modeValue: deviceSettings.modeValue,
+      timestamp: Date.now(),
+    };
+
+    // Use E-Ra widget to send settings to platform
+    if (eraWidget && typeof eraWidget.publishData === "function") {
+      eraWidget.publishData(
+        `settings_${deviceSettings.deviceId}`,
+        settingsData
+      );
+      console.log("Settings saved to E-Ra platform:", settingsData);
+    }
+  } catch (e) {
+    console.warn("Failed to save settings to E-Ra platform:", e);
+  }
 }
 
 // Update UI with current settings
@@ -119,6 +126,114 @@ function updateUIWithSettings() {
 
   // Update device name in confirm popup and array
   deviceNames[0] = deviceSettings.deviceName;
+}
+
+// Show settings panel
+function showSettings() {
+  // Populate inputs with current values
+  document.getElementById("deviceNameInput").value = deviceSettings.deviceName;
+  document.getElementById("modeLabelInput").value = deviceSettings.modeLabel;
+  document.getElementById("modeValueInput").value = deviceSettings.modeValue;
+
+  // Show overlay
+  const overlay = document.getElementById("settingsOverlay");
+  overlay.classList.add("show");
+
+  // Prevent body scroll but allow panel scroll
+  document.body.style.overflow = "hidden";
+
+  // Ensure panel can scroll properly
+  const panel = overlay.querySelector(".settings-panel");
+  const content = overlay.querySelector(".settings-content");
+
+  if (panel) {
+    panel.style.overflowY = "auto";
+    panel.scrollTop = 0; // Reset scroll position
+  }
+
+  if (content) {
+    content.style.overflowY = "auto";
+    content.scrollTop = 0; // Reset scroll position
+  }
+
+  // Show info about URL parameters if they exist
+  const urlParams = getUrlParameters();
+  if (urlParams.deviceName || urlParams.modeLabel || urlParams.modeValue) {
+    console.log("URL Parameters detected:", urlParams);
+    // Add visual indicator that URL params are active
+    const settingsTitle = document.querySelector(".settings-title");
+    if (settingsTitle && !settingsTitle.querySelector(".url-indicator")) {
+      const indicator = document.createElement("span");
+      indicator.className = "url-indicator";
+      indicator.style.cssText =
+        "color: #10b981; font-size: 10px; margin-left: 8px;";
+      indicator.textContent = "(URL)";
+      settingsTitle.appendChild(indicator);
+    }
+  }
+
+  // Focus first input
+  setTimeout(() => {
+    document.getElementById("deviceNameInput").focus();
+
+    // Scroll to top of content if needed
+    if (content) {
+      content.scrollTop = 0;
+    }
+  }, 200);
+}
+
+// Cancel settings
+function cancelSettings() {
+  // Hide overlay
+  const overlay = document.getElementById("settingsOverlay");
+  overlay.classList.remove("show");
+
+  // Restore body scroll
+  document.body.style.overflow = "";
+}
+
+// Save settings
+function saveSettings() {
+  // Get values from inputs
+  const deviceName = document.getElementById("deviceNameInput").value.trim();
+  const modeLabel = document.getElementById("modeLabelInput").value.trim();
+  const modeValue = document.getElementById("modeValueInput").value.trim();
+
+  // Validate inputs
+  if (!deviceName) {
+    alert("Tên thiết bị không được để trống!");
+    document.getElementById("deviceNameInput").focus();
+    return;
+  }
+
+  if (!modeLabel) {
+    alert("Nhãn chế độ không được để trống!");
+    document.getElementById("modeLabelInput").focus();
+    return;
+  }
+
+  if (!modeValue) {
+    alert("Giá trị chế độ không được để trống!");
+    document.getElementById("modeValueInput").focus();
+    return;
+  }
+
+  // Update settings
+  deviceSettings.deviceName = deviceName;
+  deviceSettings.modeLabel = modeLabel;
+  deviceSettings.modeValue = modeValue;
+
+  // Save to localStorage
+  saveSettingsToStorage();
+
+  // Update UI
+  updateUIWithSettings();
+
+  // Hide overlay
+  cancelSettings();
+
+  console.log("Settings saved:", deviceSettings);
 }
 
 eraWidget.init({
@@ -158,6 +273,24 @@ eraWidget.init({
 
   onValues: (values) => {
     console.log("E-Ra values received:", values);
+
+    // Check for settings data from E-Ra platform
+    if (
+      deviceSettings.deviceId &&
+      values[`settings_${deviceSettings.deviceId}`]
+    ) {
+      const serverSettings =
+        values[`settings_${deviceSettings.deviceId}`].value;
+      if (serverSettings && typeof serverSettings === "object") {
+        // Update device settings from server
+        deviceSettings = {
+          ...deviceSettings,
+          ...serverSettings,
+        };
+        updateUIWithSettings();
+        console.log("Settings updated from E-Ra platform:", deviceSettings);
+      }
+    }
 
     // Update button states based on received values
     if (values && typeof values === "object") {
@@ -381,20 +514,57 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     });
 
-  // Handle Escape key to close popup
+  // Close settings when clicking outside
+  document
+    .getElementById("settingsOverlay")
+    .addEventListener("click", function (e) {
+      // Only close if clicking on the overlay itself, not the panel
+      if (e.target === this) {
+        cancelSettings();
+      }
+    });
+
+  // Handle Escape key to close popup and settings
   document.addEventListener("keydown", function (e) {
     if (e.key === "Escape") {
       cancelConfirm();
+      cancelSettings();
+    }
+  });
+
+  // Handle Enter key in settings inputs
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Enter") {
+      const activeElement = document.activeElement;
+      if (activeElement && activeElement.classList.contains("settings-input")) {
+        saveSettings();
+      }
     }
   });
 });
 
+// Debug function to show current configuration
+function debugConfiguration() {
+  const urlParams = getUrlParameters();
+  const config = {
+    currentSettings: deviceSettings,
+    urlParameters: urlParams,
+    localStorage: JSON.parse(localStorage.getItem("deviceSettings") || "null"),
+    eraConfigured: isConfigured,
+    dataLoaded: initialDataLoaded,
+  };
+  console.log("=== DEVICE CONFIGURATION DEBUG ===");
+  console.table(config);
+  console.log("Priority: URL params > E-Ra platform > localStorage > defaults");
+  return config;
+}
+
+// Make debug function available globally
+window.debugConfiguration = debugConfiguration;
+
 // Initialize all buttons with loading state, wait for E-Ra data via onValues
 document.addEventListener("DOMContentLoaded", function () {
-  // Debug URL parameters
-  debugURLParameters();
-
-  // Load settings from URL parameters first, then localStorage
+  // Load saved settings first
   loadSettings();
 
   // Show loading state initially
