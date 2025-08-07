@@ -44,7 +44,7 @@ html {
 body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
     "Helvetica Neue", Arial, sans-serif;
-  background: linear-gradient(135deg, var(--gray-50) 0%, var(--gray-100) 100%);
+  background: white;
   padding: 16px 12px;
   min-height: 100vh;
   min-height: 100dvh; /* Dynamic viewport height for mobile */
@@ -59,40 +59,6 @@ body {
   margin: 0 auto;
   width: 100%;
   position: relative;
-}
-
-/* Settings Button */
-.settings-btn {
-  position: absolute;
-  top: 16px;
-  right: 16px;
-  width: 32px;
-  height: 32px;
-  background: var(--gray-100);
-  border: 1px solid var(--gray-200);
-  border-radius: 50%;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: var(--shadow-sm);
-  transition: var(--transition);
-  z-index: 10;
-  color: var(--gray-600);
-}
-
-.settings-btn:hover {
-  transform: translateY(-1px) rotate(90deg);
-  box-shadow: var(--shadow-md);
-  border-color: var(--green);
-  color: var(--green);
-  background: var(--white);
-}
-
-.settings-icon {
-  width: 18px;
-  height: 18px;
-  transition: var(--transition);
 }
 
 .btn-container {
@@ -291,198 +257,6 @@ button {
   padding: 16px;
 }
 
-/* Settings Panel Styles */
-.settings-overlay {
-  display: none;
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(8px);
-  z-index: 20;
-  border-radius: var(--border-radius-lg);
-  animation: fadeIn 0.2s ease-out;
-  -webkit-overflow-scrolling: touch;
-  scroll-behavior: smooth;
-}
-
-.settings-overlay.show {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.settings-panel {
-  background: var(--white);
-  border-radius: var(--border-radius);
-  padding: 16px 12px;
-  box-shadow: var(--shadow-md);
-  border: 1px solid var(--gray-300);
-  width: 100%;
-  max-width: 100%;
-  text-align: center;
-  transform: scale(0.9);
-  animation: popupIn 0.2s ease-out forwards;
-  max-height: 90%;
-  overflow-y: auto;
-  overflow-x: hidden;
-  display: flex;
-  flex-direction: column;
-  -webkit-overflow-scrolling: touch;
-  scroll-behavior: smooth;
-}
-
-.settings-panel::-webkit-scrollbar {
-  width: 4px;
-  background: var(--gray-100);
-  border-radius: 2px;
-}
-
-.settings-panel::-webkit-scrollbar-thumb {
-  background: var(--gray-400);
-  border-radius: 2px;
-  transition: var(--transition);
-}
-
-.settings-panel::-webkit-scrollbar-thumb:hover {
-  background: var(--gray-600);
-}
-
-.settings-panel {
-  scrollbar-width: thin;
-  scrollbar-color: var(--gray-400) var(--gray-100);
-}
-
-.settings-title {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--gray-800);
-  margin-bottom: 12px;
-  line-height: 1.2;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-}
-
-.settings-content {
-  max-height: 180px;
-  overflow-y: auto;
-  overflow-x: hidden;
-  padding-right: 8px;
-  margin-right: -8px;
-  flex-grow: 1;
-  flex-shrink: 1;
-  -webkit-overflow-scrolling: touch;
-  scroll-behavior: smooth;
-}
-
-.settings-content::-webkit-scrollbar {
-  width: 4px;
-  background: var(--gray-100);
-  border-radius: 2px;
-}
-
-.settings-content::-webkit-scrollbar-thumb {
-  background: var(--gray-300);
-  border-radius: 2px;
-  transition: var(--transition);
-}
-
-.settings-content::-webkit-scrollbar-thumb:hover {
-  background: var(--gray-500);
-}
-
-.settings-content {
-  scrollbar-width: thin;
-  scrollbar-color: var(--gray-300) var(--gray-100);
-}
-
-.settings-group {
-  margin-bottom: 12px;
-  text-align: left;
-}
-
-.settings-group:last-of-type {
-  margin-bottom: 0;
-}
-
-.settings-label {
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--gray-700);
-  margin-bottom: 4px;
-  display: block;
-}
-
-.settings-input {
-  width: 100%;
-  padding: 8px 10px;
-  border: 1px solid var(--gray-200);
-  border-radius: 6px;
-  font-size: 12px;
-  color: var(--gray-800);
-  background: var(--gray-50);
-  transition: var(--transition);
-  font-family: inherit;
-}
-
-.settings-input:focus {
-  outline: none;
-  border-color: var(--green);
-  background: var(--white);
-  box-shadow: 0 0 0 2px var(--green-light);
-}
-
-.settings-buttons {
-  display: flex;
-  gap: 8px;
-  margin-top: 12px;
-  justify-content: center;
-}
-
-.settings-btn-action {
-  display: flex !important;
-  padding: 8px 16px;
-  border: none;
-  border-radius: 6px;
-  font-size: 11px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: var(--transition);
-  min-width: 60px;
-  justify-content: center;
-  align-items: center;
-  touch-action: manipulation;
-  -webkit-tap-highlight-color: transparent;
-  min-height: 32px;
-  flex: 1;
-}
-
-.settings-btn-action.cancel {
-  background: var(--gray-100);
-  color: var(--gray-700);
-  border: 1px solid var(--gray-200);
-}
-
-.settings-btn-action.cancel:hover {
-  background: var(--gray-200);
-  transform: translateY(-1px);
-}
-
-.settings-btn-action.save {
-  background: linear-gradient(135deg, var(--green) 0%, var(--green-dark) 100%);
-  color: var(--white);
-  border: 1px solid var(--green);
-}
-
-.settings-btn-action.save:hover {
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-sm);
-}
-
 .confirm-overlay.show {
   display: flex;
   align-items: center;
@@ -620,48 +394,6 @@ button {
     max-width: 100%;
   }
 
-  .settings-btn {
-    top: 12px;
-    right: 12px;
-    width: 28px;
-    height: 28px;
-  }
-
-  .settings-icon {
-    width: 16px;
-    height: 16px;
-  }
-
-  .settings-panel {
-    max-height: 80vh;
-    padding: 12px 10px;
-  }
-
-  .settings-content {
-    max-height: 140px;
-    padding-right: 6px;
-    margin-right: -6px;
-  }
-
-  .settings-title {
-    font-size: 13px;
-  }
-
-  .settings-label {
-    font-size: 10px;
-  }
-
-  .settings-input {
-    padding: 6px 8px;
-    font-size: 11px;
-  }
-
-  .settings-btn-action {
-    font-size: 10px;
-    padding: 6px 12px;
-    min-height: 28px;
-  }
-
   .confirm-popup {
     padding: 20px 16px;
     max-width: 300px;
@@ -737,42 +469,6 @@ button {
   .settings-icon {
     width: 14px;
     height: 14px;
-  }
-
-  .settings-panel {
-    max-height: 75vh;
-    padding: 10px 8px;
-  }
-
-  .settings-content {
-    max-height: 120px;
-    padding-right: 4px;
-    margin-right: -4px;
-  }
-
-  .settings-title {
-    font-size: 12px;
-    margin-bottom: 10px;
-  }
-
-  .settings-group {
-    margin-bottom: 10px;
-  }
-
-  .settings-label {
-    font-size: 9px;
-    margin-bottom: 3px;
-  }
-
-  .settings-input {
-    padding: 5px 6px;
-    font-size: 10px;
-  }
-
-  .settings-btn-action {
-    font-size: 9px;
-    padding: 5px 10px;
-    min-height: 26px;
   }
 
   .confirm-popup {
