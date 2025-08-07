@@ -18,7 +18,34 @@ let pendingAction = {
 };
 
 // Device names for confirm popup (only 1 device now)
-const deviceNames = ["CB Tổng"];
+let deviceNames = ["CB Tổng"];
+
+// URL parameter processing
+function getURLParameter(name) {
+  const urlParams = new URLSearchParams(window.location.search);
+  return urlParams.get(name);
+}
+
+// Load device name from URL parameter
+function loadDeviceNameFromURL() {
+  const deviceName = getURLParameter("name");
+  if (deviceName) {
+    deviceNames[0] = decodeURIComponent(deviceName);
+    console.log(`Device name loaded from URL: ${deviceNames[0]}`);
+
+    // Update UI with the new device name
+    const deviceLabel = document.querySelector(".device-label");
+    if (deviceLabel) {
+      deviceLabel.textContent = deviceNames[0];
+    }
+
+    // Update mode label as well
+    const modeLabel = document.querySelector(".mode-label");
+    if (modeLabel) {
+      modeLabel.textContent = `Mode ${deviceNames[0]}`;
+    }
+  }
+}
 
 // Load settings from localStorage
 function loadSettings() {
@@ -302,6 +329,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
 // Initialize all buttons with loading state, wait for E-Ra data via onValues
 document.addEventListener("DOMContentLoaded", function () {
+  // Load device name from URL parameter first
+  loadDeviceNameFromURL();
+
   // Show loading state initially
   // Show as no-connection until configured and data received
   document.getElementById(`container-0`).classList.add("no-connection");
