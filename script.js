@@ -1,15 +1,11 @@
 const eraWidget = new EraWidget();
-let actionConfigs = new Array(2).fill(null); // 2 actions per button (ON/OFF) × 1 button
+let actions = null; // Store actions array directly
+let configDevice = null; // Store realtime config directly
 let isConfigured = false;
 let initialDataLoaded = false;
 
 // Button states - track locally (only 1 button now)
 let buttonStates = [false];
-
-// E-Ra realtime configs - map button index to realtime config
-let realtimeConfigs = {
-  0: null, // CB Tổng
-};
 
 // Pending action for confirm popup
 let pendingAction = {
@@ -122,29 +118,22 @@ function updateUIWithSettings() {
 }
 
 eraWidget.init({
+  needRealtimeConfigs: true /* Cần giá trị hiện thời */,
+  needHistoryConfigs: false /* Không cần giá trị lịch sử */,
+  maxActionsCount: 2 /* Số lượng tối đa các hành động có thể kích hoạt */,
+  minHistoryConfigsCount: 0 /* Số lượng tối thiểu giá trị lịch sử */,
+  minActionsCount: 2 /* Số lượng tối thiểu hành động */,
+
   onConfiguration: (configuration) => {
     console.log("E-Ra Configuration received:", configuration);
 
-    // Configure action configs - 2 actions per button (ON/OFF)
-    for (let i = 0; i < 2; i++) {
-      if (configuration.actions?.[i]) {
-        actionConfigs[i] = configuration.actions[i];
-        console.log(`Action config ${i}:`, actionConfigs[i]);
-      }
-    }
+    // Store actions array directly (following the pattern)
+    actions = configuration.actions;
+    console.log("Actions stored:", actions);
 
-    // Extract realtime configs from configuration
-    if (configuration.realtime_configs) {
-      configuration.realtime_configs.forEach((config, index) => {
-        if (index < 1) {
-          // Only map first realtime config to our 1 button
-          realtimeConfigs[index] = config;
-          console.log(
-            `Realtime config: Button ${index} -> Config ID "${config.id}"`
-          );
-        }
-      });
-    }
+    // Store realtime config directly (following the pattern)
+    configDevice = configuration.realtime_configs[0];
+    console.log("Device config stored:", configDevice);
 
     isConfigured = true;
     console.log("Widget configured successfully");
@@ -160,31 +149,26 @@ eraWidget.init({
     console.log("E-Ra values received:", values);
 
     // Update button states based on received values
-    if (values && typeof values === "object") {
-      let hasDataUpdates = false;
+    if (values && typeof values === "object" && configDevice) {
+      // Get device value using the stored config
+      if (values[configDevice.id]) {
+        const serverValue = values[configDevice.id].value;
+        const isOn = Boolean(serverValue && serverValue !== 0);
+        console.log(
+          `Device: Config ID=${configDevice.id}, Server value=${serverValue}, isOn=${isOn}`
+        );
 
-      Object.keys(realtimeConfigs).forEach((buttonIndex) => {
-        const config = realtimeConfigs[buttonIndex];
-        if (config && values[config.id]) {
-          const serverValue = values[config.id].value;
-          const isOn = Boolean(serverValue && serverValue !== 0);
-          console.log(
-            `Button ${buttonIndex}: Config ID=${config.id}, Server value=${serverValue}, isOn=${isOn}`
-          );
+        // Update button state if different from local state
+        if (buttonStates[0] !== isOn) {
+          buttonStates[0] = isOn;
+          updateButtonUI(0, isOn);
 
-          // Update button state if different from local state
-          if (buttonStates[buttonIndex] !== isOn) {
-            buttonStates[buttonIndex] = isOn;
-            updateButtonUI(parseInt(buttonIndex), isOn);
-            hasDataUpdates = true;
+          // Mark initial data as loaded on first data reception
+          if (!initialDataLoaded) {
+            initialDataLoaded = true;
+            console.log("Initial data synchronization completed via onValues");
           }
         }
-      });
-
-      // Mark initial data as loaded on first data reception
-      if (!initialDataLoaded && hasDataUpdates) {
-        initialDataLoaded = true;
-        console.log("Initial data synchronization completed via onValues");
       }
     }
   },
@@ -194,26 +178,24 @@ eraWidget.init({
     console.log("E-Ra data sync received:", values);
 
     // Process the same way as onValues
-    if (values && typeof values === "object") {
-      Object.keys(realtimeConfigs).forEach((buttonIndex) => {
-        const config = realtimeConfigs[buttonIndex];
-        if (config && values[config.id]) {
-          const serverValue = values[config.id].value;
-          const isOn = Boolean(serverValue && serverValue !== 0);
-          console.log(
-            `Data sync - Button ${buttonIndex}: Config ID=${config.id}, Server value=${serverValue}, isOn=${isOn}`
-          );
+    if (values && typeof values === "object" && configDevice) {
+      // Get device value using the stored config
+      if (values[configDevice.id]) {
+        const serverValue = values[configDevice.id].value;
+        const isOn = Boolean(serverValue && serverValue !== 0);
+        console.log(
+          `Data sync - Device: Config ID=${configDevice.id}, Server value=${serverValue}, isOn=${isOn}`
+        );
 
-          // Always update if different from local state
-          if (buttonStates[buttonIndex] !== isOn) {
-            console.log(
-              `Updating button ${buttonIndex} from ${buttonStates[buttonIndex]} to ${isOn}`
-            );
-            buttonStates[buttonIndex] = isOn;
-            updateButtonUI(parseInt(buttonIndex), isOn);
-          }
+        // Always update if different from local state
+        if (buttonStates[0] !== isOn) {
+          console.log(
+            `Updating device state from ${buttonStates[0]} to ${isOn}`
+          );
+          buttonStates[0] = isOn;
+          updateButtonUI(0, isOn);
         }
-      });
+      }
     }
   },
 });
@@ -330,24 +312,30 @@ function controlButton(buttonIndex, isOn) {
     return;
   }
 
-  // Calculate action index: buttonIndex * 2 + (ON=0, OFF=1)
-  const actionIndex = buttonIndex * 2 + (isOn ? 0 : 1);
-  console.log(`Action index: ${actionIndex}`);
+  // Check if actions array is available
+  if (!actions || actions.length < 2) {
+    console.warn("Actions not configured properly");
+    // Still update UI locally even if no server action
+    updateButtonState(buttonIndex, isOn);
+    return;
+  }
 
-  if (actionConfigs[actionIndex]) {
-    console.log("Triggering E-Ra action:", actionConfigs[actionIndex]);
+  // Get action based on ON/OFF state: ON = actions[0], OFF = actions[1] (following the pattern)
+  const actionToTrigger = isOn ? actions[0] : actions[1];
+  console.log(`Action to trigger:`, actionToTrigger);
 
-    // Use E-Ra standard format
-    eraWidget.triggerAction(actionConfigs[actionIndex].action, null, {
-      value: isOn ? 1 : 0,
-    });
+  if (actionToTrigger) {
+    console.log("Triggering E-Ra action:", actionToTrigger);
+
+    // Use E-Ra standard format with optional chaining (following the pattern)
+    eraWidget.triggerAction(actionToTrigger?.action, null);
 
     // Update UI immediately for better UX
     updateButtonState(buttonIndex, isOn);
 
     // Request data sync after action to confirm state change
   } else {
-    console.warn(`No action config found for index ${actionIndex}`);
+    console.warn(`No action config found for ${isOn ? "ON" : "OFF"} state`);
     // Still update UI locally even if no server action
     updateButtonState(buttonIndex, isOn);
   }
