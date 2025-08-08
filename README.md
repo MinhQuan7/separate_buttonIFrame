@@ -6,20 +6,18 @@
 
 ```
 # Thiết bị 1:
-https://your-github-pages-url.com/?deviceName=CB%20Tổng&modeLabel=Mode%20CB%20Tổng&modeValue=Auto&deviceId=device1
+https://your-github-pages-url.com/?deviceName=CB%20Tổng&deviceId=device1
 
 # Thiết bị 2:
-https://your-github-pages-url.com/?deviceName=CB%20Phòng%20Khách&modeLabel=Mode%20Phòng%20Khách&modeValue=Manual&deviceId=device2
+https://your-github-pages-url.com/?deviceName=CB%20Phòng%20Khách&deviceId=device2
 
 # Thiết bị 3:
-https://your-github-pages-url.com/?deviceName=CB%20Phòng%20Ngủ&modeLabel=Mode%20Phòng%20Ngủ&modeValue=Timer&deviceId=device3
+https://your-github-pages-url.com/?deviceName=CB%20Phòng%20Ngủ&deviceId=device3
 ```
 
 ### 2. Parameters có sẵn:
 
 - `deviceName`: Tên thiết bị hiển thị
-- `modeLabel`: Nhãn chế độ
-- `modeValue`: Giá trị chế độ
 - `deviceId`: ID duy nhất để đồng bộ settings qua E-Ra platform
 
 ### 3. Ví dụ sử dụng trong E-Ra Platform:
@@ -27,7 +25,7 @@ https://your-github-pages-url.com/?deviceName=CB%20Phòng%20Ngủ&modeLabel=Mode
 Khi tạo iFrame widget trong E-Ra, sử dụng URL như sau:
 
 ```
-https://your-github-pages-url.com/?deviceName=Máy%20bơm%20nước&modeLabel=Chế%20độ%20hoạt%20động&modeValue=Tự%20động&deviceId=pump001
+https://your-github-pages-url.com/?deviceName=Máy%20bơm%20nước&deviceId=pump001
 ```
 
 ### 4. Đồng bộ Settings:

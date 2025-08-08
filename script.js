@@ -19,8 +19,6 @@ let deviceNames = ["CB Tổng"];
 // Settings configuration - prioritize URL params, fallback to localStorage
 let deviceSettings = {
   deviceName: "CB Tổng",
-  modeLabel: "Mode CB Tổng",
-  modeValue: "Auto",
 };
 
 // Get settings from URL parameters
@@ -28,8 +26,6 @@ function getUrlParameters() {
   const urlParams = new URLSearchParams(window.location.search);
   return {
     deviceName: urlParams.get("deviceName"),
-    modeLabel: urlParams.get("modeLabel"),
-    modeValue: urlParams.get("modeValue"),
     deviceId: urlParams.get("deviceId"), // For unique identification
   };
 }
@@ -63,20 +59,11 @@ function loadSettings() {
   const legacyName = getURLParameter("name");
 
   // Priority: URL params > localStorage > defaults
-  if (
-    urlParams.deviceName ||
-    urlParams.modeLabel ||
-    urlParams.modeValue ||
-    legacyName
-  ) {
+  if (urlParams.deviceName || legacyName) {
     // Use URL parameters (highest priority)
     deviceSettings = {
       deviceName:
         urlParams.deviceName || legacyName || deviceSettings.deviceName,
-      modeLabel:
-        urlParams.modeLabel ||
-        (legacyName ? `Mode ${legacyName}` : deviceSettings.modeLabel),
-      modeValue: urlParams.modeValue || deviceSettings.modeValue,
       deviceId: urlParams.deviceId || null,
     };
     console.log("Settings loaded from URL parameters:", deviceSettings);
@@ -99,18 +86,6 @@ function updateUIWithSettings() {
   const deviceLabelElement = document.querySelector(".device-label");
   if (deviceLabelElement) {
     deviceLabelElement.textContent = deviceSettings.deviceName;
-  }
-
-  // Update mode label
-  const modeLabelElement = document.querySelector(".mode-label");
-  if (modeLabelElement) {
-    modeLabelElement.textContent = deviceSettings.modeLabel;
-  }
-
-  // Update mode display
-  const modeDisplayElement = document.querySelector(".mode-display");
-  if (modeDisplayElement) {
-    modeDisplayElement.textContent = deviceSettings.modeValue;
   }
 
   // Update device name in confirm popup and array
