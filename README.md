@@ -6,13 +6,13 @@
 
 ```
 # Thiết bị 1:
-https://your-github-pages-url.com/?deviceName=CB%20Tổng&deviceId=device1
+https://your-github-pages-url.com/?deviceName=CB%20Tổng&modeLabel=Mode%20CB%20Tổng&modeValue=Auto&deviceId=device1
 
 # Thiết bị 2:
-https://your-github-pages-url.com/?deviceName=CB%20Phòng%20Khách&deviceId=device2
+https://your-github-pages-url.com/?deviceName=CB%20Phòng%20Khách&modeLabel=Mode%20Phòng%20Khách&modeValue=Manual&deviceId=device2
 
 # Thiết bị 3:
-https://your-github-pages-url.com/?deviceName=CB%20Phòng%20Ngủ&deviceId=device3
+https://your-github-pages-url.com/?deviceName=CB%20Phòng%20Ngủ&modeLabel=Mode%20Phòng%20Ngủ&modeValue=Timer&deviceId=device3
 ```
 
 ### 2. Parameters có sẵn:
