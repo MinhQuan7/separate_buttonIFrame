@@ -128,7 +128,9 @@ eraWidget.init({
       // Get device value using the stored config
       if (values[configDevice.id]) {
         const serverValue = values[configDevice.id].value;
-        const isOn = Boolean(serverValue && serverValue !== 0);
+        // Check if value is 10, 11, or 30 for ON state, else OFF
+        const isOn =
+          serverValue === 10 || serverValue === 11 || serverValue === 30;
         console.log(
           `Device: Config ID=${configDevice.id}, Server value=${serverValue}, isOn=${isOn}`
         );
@@ -157,7 +159,9 @@ eraWidget.init({
       // Get device value using the stored config
       if (values[configDevice.id]) {
         const serverValue = values[configDevice.id].value;
-        const isOn = Boolean(serverValue && serverValue !== 0);
+        // Check if value is 10, 11, or 30 for ON state, else OFF
+        const isOn =
+          serverValue === 10 || serverValue === 11 || serverValue === 30;
         console.log(
           `Data sync - Device: Config ID=${configDevice.id}, Server value=${serverValue}, isOn=${isOn}`
         );
