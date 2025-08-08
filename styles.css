@@ -45,20 +45,13 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
     "Helvetica Neue", Arial, sans-serif;
   background: white;
-  padding: 16px 12px;
+  padding: 0;
+  margin: 0;
   min-height: 100vh;
   min-height: 100dvh; /* Dynamic viewport height for mobile */
-}
-
-.container {
   display: flex;
   justify-content: center;
-  align-items: flex-start;
-  gap: 16px;
-  max-width: 1200px;
-  margin: 0 auto;
-  width: 100%;
-  position: relative;
+  align-items: center;
 }
 
 .btn-container {
@@ -79,6 +72,7 @@ body {
   width: 220px;
   min-width: 180px;
   min-height: 200px;
+  margin: 16px;
 }
 
 .btn-container::before {
@@ -227,10 +221,8 @@ button {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(4px);
+  background: transparent;
   z-index: 1000;
-  animation: fadeIn 0.2s ease-out;
   padding: 16px;
 }
 
@@ -249,8 +241,6 @@ button {
   max-width: 360px;
   width: 100%;
   text-align: center;
-  transform: scale(0.9);
-  animation: popupIn 0.2s ease-out forwards;
   max-height: 90vh;
   overflow-y: auto;
 }
@@ -335,35 +325,10 @@ button {
   box-shadow: var(--shadow-md);
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes popupIn {
-  from {
-    transform: scale(0.9);
-    opacity: 0;
-  }
-  to {
-    transform: scale(1);
-    opacity: 1;
-  }
-}
-
 @media (max-width: 768px) {
   body {
-    padding: 12px 8px;
-  }
-
-  .container {
-    flex-direction: column;
-    align-items: center;
-    gap: 12px;
+    padding: 0;
+    margin: 0;
   }
 
   .btn-container {
@@ -373,6 +338,7 @@ button {
     min-height: 180px;
     justify-content: center;
     align-items: center;
+    margin: 12px 8px;
   }
 
   .confirm-popup {
@@ -421,11 +387,8 @@ button {
 /* Extra small mobile devices */
 @media (max-width: 480px) {
   body {
-    padding: 8px 4px;
-  }
-
-  .container {
-    gap: 8px;
+    padding: 0;
+    margin: 0;
   }
 
   .btn-container {
@@ -435,6 +398,7 @@ button {
     min-height: 160px;
     justify-content: center;
     align-items: center;
+    margin: 8px 4px;
   }
 
   .settings-btn {
@@ -500,13 +464,8 @@ button {
 /* Landscape mobile orientation */
 @media (max-width: 768px) and (orientation: landscape) {
   body {
-    padding: 8px 12px;
-  }
-
-  .container {
-    flex-direction: row;
-    justify-content: center;
-    gap: 8px;
+    padding: 0;
+    margin: 0;
   }
 
   .btn-container {
@@ -516,6 +475,7 @@ button {
     width: 300px;
     justify-content: center;
     align-items: center;
+    margin: 8px 12px;
   }
 
   .confirm-popup {
@@ -543,6 +503,7 @@ button {
     min-height: 140px;
     justify-content: center;
     align-items: center;
+    margin: 8px;
   }
 
   .status {
