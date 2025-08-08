@@ -98,7 +98,7 @@ eraWidget.init({
   maxActionsCount: 2 /* Số lượng tối đa các hành động có thể kích hoạt */,
   minHistoryConfigsCount: 0 /* Số lượng tối thiểu giá trị lịch sử */,
   minActionsCount: 2 /* Số lượng tối thiểu hành động */,
-  mobileHeight: 150 /* Chiều cao của widget */,
+  mobileHeight: 165 /* Chiều cao của widget */,
   onConfiguration: (configuration) => {
     console.log("E-Ra Configuration received:", configuration);
 
