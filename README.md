@@ -5,14 +5,7 @@
 ### 1. Sử dụng 1 URL GitHub Actions cho 3 thiết bị khác nhau:
 
 ```
-# Thiết bị 1:
-https://your-github-pages-url.com/?deviceName=CB%20Tổng&deviceId=device1
-
-# Thiết bị 2:
-https://your-github-pages-url.com/?deviceName=CB%20Phòng%20Khách&deviceId=device2
-
-# Thiết bị 3:
-https://your-github-pages-url.com/?deviceName=CB%20Phòng%20Ngủ&deviceId=device3
+https://minhquan7.github.io/separate_buttonIFrame/?deviceName=CB%201
 ```
 
 ### 2. Parameters có sẵn:
