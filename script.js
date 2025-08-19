@@ -93,10 +93,9 @@ function updateUIWithSettings() {
 }
 
 eraWidget.init({
+  needHistoryConfigs: true,
+  minHistoryConfigsCount: 0,
   needRealtimeConfigs: true /* Cần giá trị hiện thời */,
-  needHistoryConfigs: false /* Không cần giá trị lịch sử */,
-  maxActionsCount: 2 /* Số lượng tối đa các hành động có thể kích hoạt */,
-  minHistoryConfigsCount: 0 /* Số lượng tối thiểu giá trị lịch sử */,
   minActionsCount: 2 /* Số lượng tối thiểu hành động */,
   mobileHeight: 200 /* Chiều cao của widget */,
   onConfiguration: (configuration) => {
