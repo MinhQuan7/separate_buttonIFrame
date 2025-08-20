@@ -148,34 +148,6 @@ eraWidget.init({
       }
     }
   },
-
-  // Add onDataSync callback to handle periodic data updates
-  onDataSync: (values) => {
-    console.log("E-Ra data sync received:", values);
-
-    // Process the same way as onValues
-    if (values && typeof values === "object" && configDevice) {
-      // Get device value using the stored config
-      if (values[configDevice.id]) {
-        const serverValue = values[configDevice.id].value;
-        // Check if value is 10, 11, or 30 for ON state, else OFF
-        const isOn =
-          serverValue === 10 || serverValue === 11 || serverValue === 30;
-        console.log(
-          `Data sync - Device: Config ID=${configDevice.id}, Server value=${serverValue}, isOn=${isOn}`
-        );
-
-        // Always update if different from local state
-        if (buttonStates[0] !== isOn) {
-          console.log(
-            `Updating device state from ${buttonStates[0]} to ${isOn}`
-          );
-          buttonStates[0] = isOn;
-          updateButtonUI(0, isOn);
-        }
-      }
-    }
-  },
 });
 
 function updateButtonUI(buttonIndex, isOn) {
