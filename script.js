@@ -180,16 +180,6 @@ function updateButtonUI(buttonIndex, isOn) {
   window[`status${buttonIndex}`] = isOn;
 }
 
-function updateButtonState(buttonIndex, isOn) {
-  console.log(`updateButtonState: buttonIndex=${buttonIndex}, isOn=${isOn}`);
-
-  // Update local state
-  buttonStates[buttonIndex] = isOn;
-
-  // Update UI
-  updateButtonUI(buttonIndex, isOn);
-}
-
 function toggleButton(buttonIndex) {
   const currentState = buttonStates[buttonIndex];
   const newState = !currentState;
@@ -262,14 +252,6 @@ function controlButton(buttonIndex, isOn) {
     return;
   }
 
-  // Check if actions array is available
-  if (!actions || actions.length < 2) {
-    console.warn("Actions not configured properly");
-    // Still update UI locally even if no server action
-    updateButtonState(buttonIndex, isOn);
-    return;
-  }
-
   // Get action based on ON/OFF state: ON = actions[0], OFF = actions[1] (following the pattern)
   const actionToTrigger = isOn ? actions[0] : actions[1];
   console.log(`Action to trigger:`, actionToTrigger);
@@ -279,15 +261,8 @@ function controlButton(buttonIndex, isOn) {
 
     // Use E-Ra standard format with optional chaining (following the pattern)
     eraWidget.triggerAction(actionToTrigger?.action, null);
-
-    // Update UI immediately for better UX
-    updateButtonState(buttonIndex, isOn);
-
-    // Request data sync after action to confirm state change
   } else {
     console.warn(`No action config found for ${isOn ? "ON" : "OFF"} state`);
-    // Still update UI locally even if no server action
-    updateButtonState(buttonIndex, isOn);
   }
 }
 
